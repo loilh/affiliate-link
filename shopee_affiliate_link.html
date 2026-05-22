@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopee Affiliate Link Maker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:active {
+            background: #4653bb;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .result-content {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .result-content input {
+            flex: 1;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .copy-button {
+            padding: 12px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .copy-button:hover {
+            background: #218838;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🛍️</div>
+            <h1>Shopee Affiliate Link Maker</h1>
+            <p class="subtitle">Tạo link chia sẻ sản phẩm kiếm tiền</p>
+        </div>
+
+        <form id="mainForm" onsubmit="createLink(event)">
+            <div class="form-group">
+                <label for="productUrl">Paste link sản phẩm Shopee:</label>
+                <input 
+                    type="url" 
+                    id="productUrl" 
+                    placeholder="https://shopee.vn/..."
+                    required
+                >
+            </div>
+
+            <div class="button-group">
+                <button type="submit">Tạo Link</button>
+                <button type="reset">Xóa</button>
+            </div>
+        </form>
+
+        <div id="message" class="message"></div>
+
+        <div id="resultBox" class="result-box">
+            <div class="result-label">📌 Link Affiliate (tự động mở app Shopee)</div>
+            <div class="result-content">
+                <input type="text" id="resultLink" readonly>
+                <button type="button" class="copy-button" onclick="copyLink()">Copy</button>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <div class="result-label">🔗 Link gốc (có affiliate ID)</div>
+                <div class="result-content">
+                    <input type="text" id="rawLink" readonly style="font-size: 11px;">
+                    <button type="button" class="copy-button" onclick="copyRawLink()">Copy</button>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <strong>💡 Hướng dẫn:</strong><br>
+                1. Copy link affiliate (ở trên cùng)<br>
+                2. Chia sẻ qua Zalo, Messenger, Facebook<br>
+                3. Khi bạn bè click → Tự động mở app Shopee<br>
+                4. Họ mua hàng → Bạn nhận hoa hồng! 💰
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⭐ MÃ AFFILIATE CỦA BẠN
+        const AFFILIATE_ID = "17396630390";
+        // ⭐ ĐƯỜNG DẪN REDIRECT (THAY BẰNG ĐƯỜNG DẪN THỰC TẾ CỦA BẠN)
+        const REDIRECT_PAGE = "shopee_app_redirect.html";
+
+        function createLink(event) {
+            event.preventDefault();
+            
+            const productUrl = document.getElementById('productUrl').value.trim();
+            const messageDiv = document.getElementById('message');
+            const resultBox = document.getElementById('resultBox');
+            const resultLink = document.getElementById('resultLink');
+            const rawLink = document.getElementById('rawLink');
+            
+            // Reset messages
+            messageDiv.className = 'message';
+            messageDiv.textContent = '';
+            
+            // Validate
+            if (!productUrl) {
+                showMessage('Vui lòng nhập link sản phẩm', 'error');
+                return;
+            }
+            
+            if (!productUrl.includes('shopee')) {
+                showMessage('Link phải là từ Shopee.vn', 'error');
+                return;
+            }
+            
+            try {
+                new URL(productUrl);
+            } catch (e) {
+                showMessage('Link không hợp lệ', 'error');
+                return;
+            }
+            
+            // Create affiliate link
+            let affiliateLink = productUrl;
+            const separator = affiliateLink.includes('?') ? '&' : '?';
+            affiliateLink += separator + 'aff_code=' + AFFILIATE_ID;
+            
+            // Create redirect link (encode base64)
+            const encodedLink = btoa(affiliateLink);
+            const currentPath = window.location.pathname;
+            const baseUrl = window.location.origin + currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+            const redirectLink = baseUrl + REDIRECT_PAGE + '?link=' + encodedLink;
+            
+            // Display result
+            resultLink.value = redirectLink;
+            rawLink.value = affiliateLink;
+            resultBox.classList.add('show');
+            showMessage('✓ Link tạo thành công! Copy link trên cùng và chia sẻ', 'success');
+        }
+        
+        function copyLink() {
+            const resultLink = document.getElementById('resultLink');
+            resultLink.select();
+            
+            try {
+                document.execCommand('copy');
+                showMessage('✓ Đã copy redirect link!', 'success');
+            } catch (err) {
+                navigator.clipboard.writeText(resultLink.value).then(() => {
+                    showMessage('✓ Đã copy redirect link!', 'success');
+                });
+            }
+        }
+
+        function copyRawLink() {
+            const rawLink = document.getElementById('rawLink');
+            rawLink.select();
+            
+            try {
+                document.execCommand('copy');
+                showMessage('✓ Đã copy affiliate link gốc!', 'success');
+            } catch (err) {
+                navigator.clipboard.writeText(rawLink.value).then(() => {
+                    showMessage('✓ Đã copy affiliate link gốc!', 'success');
+                });
+            }
+        }
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+        }
+    </script>
+</body>
+</html>

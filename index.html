@@ -689,6 +689,8 @@
         const STORAGE_KEY = "shopee_affiliate_links";
         const DAYS_TO_KEEP = 7;
         const ITEMS_PER_PAGE = 10;
+        // ⭐ BACKEND URL
+        const API_BASE_URL = "https://parse-shopee-link.vercel.app";
         let currentPage = 1;
 
         // Xoá link cũ khi load trang
@@ -746,29 +748,25 @@
             showMessage('<span class="loading-spinner"></span>Đang xử lý...', 'loading');
 
             try {
-                let fullLink = await resolveShortLink(productUrl);
-                let productId = null;
+                // Gọi backend để resolve link
+                const apiResponse = await fetch(`${API_BASE_URL}/api/resolve-link?url=${encodeURIComponent(productUrl)}`);
                 
-                // Thử extract product ID từ link
-                productId = extractProductId(fullLink);
-                
-                // Nếu là short link và không thể extract, cố gắng lấy product info từ short link
-                if (!productId && fullLink.includes('s.shopee.vn')) {
-                    console.log('Không thể extract từ short link, cố gắng fetch từ short link');
-                    // Shopee API có thể handle short link, thử luôn
-                    productId = await fetchProductInfoFromShortLink(fullLink);
+                if (!apiResponse.ok) {
+                    throw new Error(`Server error: ${apiResponse.status}`);
                 }
-                
-                let productInfo = null;
-                if (productId) {
-                    productInfo = await fetchProductInfo(productId);
-                    if (productInfo) {
-                        displayProductCard(productInfo);
-                    }
+
+                const apiData = await apiResponse.json();
+                const fullLink = apiData.resolvedUrl;
+                const productInfo = apiData.productInfo;
+
+                if (productInfo) {
+                    displayProductCard(productInfo);
+                } else {
+                    console.log('Không lấy được thông tin sản phẩm');
                 }
 
                 let affiliateLink = fullLink;
-                const separator = affiliateLink.includes('?') ? '&' : '?';
+                const separator = fullLink.includes('?') ? '&' : '?';
                 affiliateLink += separator + 'aff_code=' + AFFILIATE_ID;
 
                 resultLink.value = affiliateLink;
@@ -780,14 +778,11 @@
                 currentPage = 1;
                 displayHistory();
 
-                // Message được hiển thị từ saveLink nếu có sản phẩm trùng
-                if (!document.getElementById('message').innerHTML.includes('cập nhật')) {
-                    showMessage('✓ Link tạo thành công!', 'success');
-                }
+                showMessage('✓ Link tạo thành công!', 'success');
 
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('❌ Lỗi: ' + error.message, 'error');
+                showMessage('❌ Lỗi: ' + error.message + '. Hãy thử lại sau', 'error');
             } finally {
                 createBtn.disabled = false;
             }
@@ -971,39 +966,8 @@
         }
 
         async function resolveShortLink(url) {
-            // Nếu không phải short link, trả về ngay
-            if (!url.includes('s.shopee.vn')) {
-                return url;
-            }
-
-            // Cố gắng resolve short link bằng các proxy khác nhau
-            const proxies = [
-                (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-                (url) => `https://cors-anywhere.herokuapp.com/${url}`,
-            ];
-
-            for (let proxyFn of proxies) {
-                try {
-                    const response = await fetch(proxyFn(url), {
-                        method: 'GET',
-                        timeout: 3000
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.headers?.location) {
-                            console.log('Resolved short link:', data.headers.location);
-                            return data.headers.location;
-                        }
-                    }
-                } catch (e) {
-                    console.log('Proxy thất bại:', e.message);
-                    continue;
-                }
-            }
-
-            // Fallback: Sử dụng short link trực tiếp
-            console.log('Không thể resolve short link, sử dụng short link trực tiếp');
+            // Shopee short link không thể resolve bằng fetch do CORS
+            // Vẫn trả về short link, sẽ xử lý ở hàm khác
             return url;
         }
 
@@ -1025,19 +989,6 @@
             }
             
             return null;
-        }
-
-        async function fetchProductInfoFromShortLink(shortLink) {
-            try {
-                // Thử gọi Shopee API với short link trực tiếp
-                // Tuy nhiên API yêu cầu shop_id và item_id, nên cách này khó khả thi
-                // Fallback: Trả về null, link affiliate vẫn hoạt động
-                console.log('Short link API fallback');
-                return null;
-            } catch (error) {
-                console.log('Không thể lấy info từ short link:', error);
-                return null;
-            }
         }
 
         async function fetchProductInfo(productId) {

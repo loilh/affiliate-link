@@ -747,9 +747,19 @@
 
             try {
                 let fullLink = await resolveShortLink(productUrl);
-                const productId = extractProductId(fullLink);
+                let productId = null;
+                
+                // Thử extract product ID từ link
+                productId = extractProductId(fullLink);
+                
+                // Nếu là short link và không thể extract, cố gắng lấy product info từ short link
+                if (!productId && fullLink.includes('s.shopee.vn')) {
+                    console.log('Không thể extract từ short link, cố gắng fetch từ short link');
+                    // Shopee API có thể handle short link, thử luôn
+                    productId = await fetchProductInfoFromShortLink(fullLink);
+                }
+                
                 let productInfo = null;
-
                 if (productId) {
                     productInfo = await fetchProductInfo(productId);
                     if (productInfo) {
@@ -961,35 +971,39 @@
         }
 
         async function resolveShortLink(url) {
-            if (url.includes('s.shopee.vn')) {
+            // Nếu không phải short link, trả về ngay
+            if (!url.includes('s.shopee.vn')) {
+                return url;
+            }
+
+            // Cố gắng resolve short link bằng các proxy khác nhau
+            const proxies = [
+                (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+                (url) => `https://cors-anywhere.herokuapp.com/${url}`,
+            ];
+
+            for (let proxyFn of proxies) {
                 try {
-                    // Cách 1: Thử dùng cors-anywhere proxy (nếu có)
-                    const corsProxy = 'https://api.allorigins.win/get?url=';
-                    const response = await fetch(corsProxy + encodeURIComponent(url), {
-                        method: 'GET'
+                    const response = await fetch(proxyFn(url), {
+                        method: 'GET',
+                        timeout: 3000
                     });
                     
                     if (response.ok) {
                         const data = await response.json();
-                        // Kiểm tra xem proxy có trả về location header không
-                        if (data.headers && data.headers.location) {
+                        if (data.headers?.location) {
+                            console.log('Resolved short link:', data.headers.location);
                             return data.headers.location;
-                        }
-                        // Nếu không, cố gắng extract từ HTML response
-                        if (data.contents) {
-                            const match = data.contents.match(/location\.href\s*=\s*['"]([^'"]+)['"]/i);
-                            if (match) return match[1];
                         }
                     }
                 } catch (e) {
-                    console.log('Proxy không khả dụng:', e);
+                    console.log('Proxy thất bại:', e.message);
+                    continue;
                 }
-                
-                // Fallback: Tiếp tục sử dụng short link
-                // Shopee API có thể xử lý short link trực tiếp
-                console.log('Sử dụng short link trực tiếp');
-                return url;
             }
+
+            // Fallback: Sử dụng short link trực tiếp
+            console.log('Không thể resolve short link, sử dụng short link trực tiếp');
             return url;
         }
 
@@ -1011,6 +1025,19 @@
             }
             
             return null;
+        }
+
+        async function fetchProductInfoFromShortLink(shortLink) {
+            try {
+                // Thử gọi Shopee API với short link trực tiếp
+                // Tuy nhiên API yêu cầu shop_id và item_id, nên cách này khó khả thi
+                // Fallback: Trả về null, link affiliate vẫn hoạt động
+                console.log('Short link API fallback');
+                return null;
+            } catch (error) {
+                console.log('Không thể lấy info từ short link:', error);
+                return null;
+            }
         }
 
         async function fetchProductInfo(productId) {

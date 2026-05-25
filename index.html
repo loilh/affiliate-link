@@ -656,8 +656,9 @@
     </div>
 
     <script>
-        // ⭐ MÃ AFFILIATE CỦA BẠN
+        // ⭐ CẤU HÌNH
         const AFFILIATE_ID = "17396630390";
+        const API_URL = "https://parse-shopee-link.vercel.app/api/resolve-link";
         const STORAGE_KEY = "shopee_affiliate_links";
         const DAYS_TO_KEEP = 7;
         const ITEMS_PER_PAGE = 10;
@@ -718,24 +719,21 @@
             showMessage('<span class="loading-spinner"></span>Đang xử lý...', 'loading');
 
             try {
-                let fullLink = await resolveShortLink(productUrl);
-                const productId = extractProductId(fullLink);
-                let productInfo = null;
+                const response = await fetch(`${API_URL}?url=${encodeURIComponent(productUrl)}`);
 
-                if (productId) {
-                    try {
-                        productInfo = await fetchProductInfo(productId);
-                    } catch (e) {
-                        console.log('Không lấy được thông tin sản phẩm:', e);
-                    }
-                    if (productInfo) {
-                        displayProductCard(productInfo);
-                    }
+                if (!response.ok) throw new Error(`API lỗi ${response.status}`);
+
+                const data = await response.json();
+                // data = { url, productInfo: {name, image}, facebookPostId, cached }
+
+                const productInfo = data.productInfo || null;
+                if (productInfo) {
+                    displayProductCard(productInfo);
                 }
 
-                let affiliateLink = fullLink;
-                const separator = affiliateLink.includes('?') ? '&' : '?';
-                affiliateLink += separator + 'aff_code=' + AFFILIATE_ID;
+                const baseUrl = data.url || productUrl;
+                const separator = baseUrl.includes('?') ? '&' : '?';
+                const affiliateLink = baseUrl + separator + 'aff_code=' + AFFILIATE_ID;
 
                 resultLink.value = affiliateLink;
                 resultBox.classList.add('show');
@@ -746,7 +744,6 @@
                 currentPage = 1;
                 displayHistory();
 
-                // Message được hiển thị từ saveLink nếu có sản phẩm trùng
                 if (!document.getElementById('message').innerHTML.includes('cập nhật')) {
                     showMessage('✓ Link tạo thành công!', 'success');
                 }
@@ -934,51 +931,6 @@
                 displayHistory();
                 showMessage('✓ Đã xóa tất cả link', 'success');
             }
-        }
-
-        async function resolveShortLink(url) {
-            if (url.includes('s.shopee.vn')) {
-                try {
-                    const response = await fetch(url, { method: 'HEAD' });
-                    return response.url || url;
-                } catch (e) {
-                    return url;
-                }
-            }
-            return url;
-        }
-
-        function extractProductId(url) {
-            const match = url.match(/\/(?:product\/)?(\d+)\.(\d+)/);
-            if (match) {
-                return {
-                    shopId: match[1],
-                    itemId: match[2]
-                };
-            }
-            return null;
-        }
-
-        async function fetchProductInfo(productId) {
-            try {
-                const url = `https://shopee.vn/api/v4/pdp/get_pc?shop_id=${productId.shopId}&item_id=${productId.itemId}`;
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.data) {
-                    const product = data.data.item;
-                    return {
-                        name: product.name,
-                        image: product.image,
-                        sales: product.historical_sold || product.sold,
-                        price: product.price / 100000,
-                        rating: product.rating_star || 5
-                    };
-                }
-            } catch (error) {
-                console.log('Không thể lấy thông tin sản phẩm:', error);
-            }
-            return null;
         }
 
         function displayProductCard(productInfo) {

@@ -671,6 +671,19 @@
             displayHistory();
         });
 
+        // Reset UI khi bấm nút Xóa
+        document.getElementById('mainForm').addEventListener('reset', () => {
+            document.getElementById('resultBox').classList.remove('show');
+            document.getElementById('productCard').style.display = 'none';
+            document.getElementById('resultLink').value = '';
+            const step2Circle = document.getElementById('step2Circle');
+            step2Circle.classList.remove('completed');
+            step2Circle.textContent = '2';
+            const msg = document.getElementById('message');
+            msg.className = 'message';
+            msg.innerHTML = '';
+        });
+
         function cleanOldLinks() {
             const links = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
             const now = Date.now();

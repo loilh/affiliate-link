@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopee Affiliate Link Maker</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
     <style>
         * {
             margin: 0;
@@ -52,6 +51,59 @@
             font-size: 14px;
         }
 
+        /* Steps */
+        .steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 30px 0;
+            gap: 15px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 18px;
+            background: #ccc;
+        }
+
+        .step-circle.active {
+            background: #28a745;
+        }
+
+        .step-circle.completed {
+            background: #28a745;
+        }
+
+        .step-label {
+            text-align: center;
+            font-size: 13px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #ddd;
+            margin-top: 25px;
+        }
+
+        /* Form */
         .form-group {
             margin-bottom: 20px;
         }
@@ -105,6 +157,12 @@
             background: #4653bb;
         }
 
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Result */
         .result-box {
             background: #f8f9fa;
             border: 2px solid #ddd;
@@ -118,6 +176,54 @@
             display: block;
         }
 
+        /* Product Card */
+        .product-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .product-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         .result-label {
             font-size: 12px;
             color: #666;
@@ -129,55 +235,63 @@
         .result-content {
             display: flex;
             gap: 8px;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
         .result-content input {
+            flex: 1;
             font-size: 12px;
             font-family: 'Courier New', monospace;
             padding: 12px;
         }
 
         .icon-button {
-            width: 42px;
-            height: 42px;
-            flex: none;
-            border: 1px solid #c3e6cb;
-            border-radius: 4px;
+            flex: 1;
+            padding: 12px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
             cursor: pointer;
             font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             transition: all 0.2s;
-            position: relative;
-            padding: 0;
-            background: white;
+            white-space: nowrap;
         }
 
         .icon-button:hover {
-            transform: scale(1.05);
+            background: #218838;
+            transform: translateY(-1px);
         }
 
-        .icon-button::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: -28px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
+        /* Action Button */
+        .action-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
             color: white;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 11px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-            font-weight: normal;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .icon-button:hover::after {
-            opacity: 1;
+        .action-button:hover {
+            background: linear-gradient(135deg, #ff5520 0%, #ff3300 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .action-button::after {
+            content: '>';
+            font-size: 18px;
         }
 
         .message {
@@ -201,6 +315,13 @@
             display: block;
         }
 
+        .message.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
         .info-box {
             background: #e7f3ff;
             border-left: 4px solid #667eea;
@@ -212,6 +333,226 @@
             line-height: 1.6;
         }
 
+        /* History Section */
+        .history-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #ddd;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .clear-all-btn {
+            flex: none;
+            padding: 6px 8px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .clear-all-btn:hover {
+            background: #c82333;
+            transform: scale(1.15);
+        }
+
+        /* Table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .history-table thead {
+            background: #f0f0f0;
+        }
+
+        .history-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .history-table td {
+            padding: 12px 8px;
+            border: 1px solid #ddd;
+            color: #555;
+        }
+
+        .history-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .product-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-thumbnail {
+            width: 60px;
+            height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+            background: #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .product-name-cell {
+            flex: 1;
+            font-weight: 500;
+            color: #333;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            flex: none;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .open-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .open-btn:hover {
+            background: #218838;
+        }
+
+        .copy-btn {
+            background: #0275d8;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: #0257b8;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            padding: 6px 8px;
+            font-size: 14px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .pagination button,
+        .pagination span {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            background: white;
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination button:disabled {
+            background: #f0f0f0;
+            color: #ccc;
+            cursor: not-allowed;
+            border-color: #ddd;
+        }
+
+        .pagination .active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0c5460;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -221,9 +562,37 @@
                 flex-direction: column;
             }
 
-            .icon-button::after {
-                bottom: auto;
-                top: -35px;
+            .product-card {
+                flex-direction: column;
+            }
+
+            .product-image {
+                width: 100%;
+                height: 200px;
+            }
+
+            .history-table {
+                font-size: 12px;
+            }
+
+            .history-table th,
+            .history-table td {
+                padding: 8px 4px;
+            }
+
+            .action-btn {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+
+            .pagination {
+                gap: 4px;
+            }
+
+            .pagination button,
+            .pagination span {
+                padding: 6px 8px;
+                font-size: 12px;
             }
         }
     </style>
@@ -236,55 +605,126 @@
             <h1>Shopee Affiliate Link Maker</h1>
         </div>
 
+        <!-- Steps -->
+        <div class="steps">
+            <div class="step">
+                <div class="step-circle active" id="step1Circle">✓</div>
+                <div class="step-label">Dán link</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle" id="step2Circle">2</div>
+                <div class="step-label">Click & mua</div>
+            </div>
+        </div>
+
+        <!-- Form -->
         <form id="mainForm" onsubmit="createLink(event)">
             <div class="form-group">
                 <label for="productUrl">Paste link sản phẩm Shopee:</label>
-                <input type="url" id="productUrl" placeholder="https://shopee.vn/..." required>
+                <input type="url" id="productUrl" placeholder="Dán link sản phẩm Shopee tại đây..." required>
             </div>
 
             <div class="button-group">
-                <button type="submit">Tạo Link</button>
+                <button type="submit" id="createBtn">Tạo Link</button>
                 <button type="reset">Xóa</button>
             </div>
         </form>
 
         <div id="message" class="message"></div>
 
+        <!-- Result -->
         <div id="resultBox" class="result-box">
+            <!-- Product Card -->
+            <div id="productCard" class="product-card" style="display: none;">
+                <img id="productImage" class="product-image" src="" alt="Product">
+                <div class="product-info">
+                    <div class="product-name" id="productName"></div>
+                    <div class="product-stats">
+                        <div class="stat">
+                            <span>⭐</span>
+                            <span id="productRating">5/5</span>
+                        </div>
+                        <div class="stat">
+                            <span>📦</span>
+                            <span id="productSales">0 lượt mua</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-label">🔗 Link Affiliate</div>
             <div class="result-content">
                 <input type="text" id="resultLink" readonly>
-                <button type="button" class="icon-button" onclick="copyLink()" data-tooltip="Copy" title="Copy link">
-                    📋
-                </button>
-                <button type="button" class="icon-button" onclick="openLink()" data-tooltip="Mở" title="Mở link">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                        stroke="#667eea" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="13 6 19 12 13 18" />
-                        <line x1="3" y1="6" x2="3" y2="18" />
-                    </svg>
+                <button type="button" class="icon-button" onclick="openLink()">
+                    Click & đặt hàng
                 </button>
             </div>
+
+            <!-- Copy Button -->
+            <button type="button" class="action-button" onclick="copyAndShare()">
+                Copy Link & Chia sẻ
+            </button>
+        </div>
+
+        <!-- History Section -->
+        <div class="history-section">
+            <div class="history-header">
+                <div class="history-title">📋 Lịch sử link đã tạo</div>
+                <button type="button" class="clear-all-btn" onclick="clearAllLinks()" title="Xóa tất cả">🗑️</button>
+            </div>
+
+            <div id="historyContainer">
+                <div class="empty-message">Chưa có link nào được tạo</div>
+            </div>
+
+            <div id="paginationContainer"></div>
+            <div class="pagination-info" id="paginationInfo"></div>
         </div>
     </div>
 
     <script>
         // ⭐ MÃ AFFILIATE CỦA BẠN
         const AFFILIATE_ID = "17396630390";
+        const STORAGE_KEY = "shopee_affiliate_links";
+        const DAYS_TO_KEEP = 7;
+        const ITEMS_PER_PAGE = 10;
+        let currentPage = 1;
 
-        function createLink(event) {
+        // Xoá link cũ khi load trang
+        window.addEventListener('load', () => {
+            cleanOldLinks();
+            currentPage = 1;
+            displayHistory();
+        });
+
+        function cleanOldLinks() {
+            const links = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const now = Date.now();
+            const filtered = links.filter(link => {
+                const linkAge = now - link.createdAt;
+                const daysOld = linkAge / (1000 * 60 * 60 * 24);
+                return daysOld < DAYS_TO_KEEP;
+            });
+
+            if (filtered.length !== links.length) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+            }
+        }
+
+        async function createLink(event) {
             event.preventDefault();
 
             const productUrl = document.getElementById('productUrl').value.trim();
             const messageDiv = document.getElementById('message');
             const resultBox = document.getElementById('resultBox');
             const resultLink = document.getElementById('resultLink');
+            const createBtn = document.getElementById('createBtn');
+            const step2Circle = document.getElementById('step2Circle');
 
-            // Reset messages
             messageDiv.className = 'message';
             messageDiv.textContent = '';
 
-            // Validate
             if (!productUrl) {
                 showMessage('Vui lòng nhập link sản phẩm', 'error');
                 return;
@@ -302,29 +742,291 @@
                 return;
             }
 
-            // Create affiliate link
-            let affiliateLink = productUrl;
-            const separator = affiliateLink.includes('?') ? '&' : '?';
-            affiliateLink += separator + 'aff_code=' + AFFILIATE_ID;
-
-            // Display result
-            resultLink.value = affiliateLink;
-            resultBox.classList.add('show');
-            showMessage('✓ Link tạo thành công!', 'success');
-        }
-
-        function copyLink() {
-            const resultLink = document.getElementById('resultLink');
-            resultLink.select();
+            createBtn.disabled = true;
+            showMessage('<span class="loading-spinner"></span>Đang xử lý...', 'loading');
 
             try {
-                document.execCommand('copy');
-                showMessage('✓ Đã copy link!', 'success');
-            } catch (err) {
-                navigator.clipboard.writeText(resultLink.value).then(() => {
-                    showMessage('✓ Đã copy link!', 'success');
-                });
+                let fullLink = await resolveShortLink(productUrl);
+                const productId = extractProductId(fullLink);
+                let productInfo = null;
+
+                if (productId) {
+                    productInfo = await fetchProductInfo(productId);
+                    if (productInfo) {
+                        displayProductCard(productInfo);
+                    }
+                }
+
+                let affiliateLink = fullLink;
+                const separator = affiliateLink.includes('?') ? '&' : '?';
+                affiliateLink += separator + 'aff_code=' + AFFILIATE_ID;
+
+                resultLink.value = affiliateLink;
+                resultBox.classList.add('show');
+                step2Circle.classList.add('completed');
+                step2Circle.textContent = '2';
+
+                saveLink(affiliateLink, productUrl, productInfo);
+                currentPage = 1;
+                displayHistory();
+
+                // Message được hiển thị từ saveLink nếu có sản phẩm trùng
+                if (!document.getElementById('message').innerHTML.includes('cập nhật')) {
+                    showMessage('✓ Link tạo thành công!', 'success');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('❌ Lỗi: ' + error.message, 'error');
+            } finally {
+                createBtn.disabled = false;
             }
+        }
+
+        function saveLink(affiliateLink, originalLink, productInfo = null) {
+            const links = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+            // Check xem sản phẩm đã tồn tại chưa (dựa vào URL gốc)
+            const existingIndex = links.findIndex(link => link.originalLink === originalLink);
+
+            const newLink = {
+                id: Date.now(),
+                affiliateLink: affiliateLink,
+                originalLink: originalLink,
+                productInfo: productInfo,
+                createdAt: Date.now(),
+                createdDate: new Date().toLocaleString('vi-VN')
+            };
+
+            if (existingIndex !== -1) {
+                // Nếu sản phẩm đã tồn tại, xóa cái cũ và thêm cái mới vào đầu
+                links.splice(existingIndex, 1);
+                showMessage('✓ Sản phẩm đã tồn tại, đã cập nhật link mới!', 'success');
+            }
+
+            links.unshift(newLink);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+        }
+
+        function displayHistory() {
+            const links = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const container = document.getElementById('historyContainer');
+
+            if (links.length === 0) {
+                container.innerHTML = '<div class="empty-message">Chưa có link nào được tạo</div>';
+                document.getElementById('paginationContainer').innerHTML = '';
+                document.getElementById('paginationInfo').innerHTML = '';
+                return;
+            }
+
+            // Tính toán pagination
+            const totalPages = Math.ceil(links.length / ITEMS_PER_PAGE);
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const paginatedLinks = links.slice(startIndex, endIndex);
+
+            let html = `
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;">TT</th>
+                            <th>Sản phẩm</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            paginatedLinks.forEach((link, index) => {
+                const productInfo = link.productInfo;
+                const productName = productInfo ? productInfo.name : 'Sản phẩm';
+                const productImage = productInfo ? productInfo.image : 'https://via.placeholder.com/60';
+                const rowNumber = startIndex + index + 1;
+
+                html += `
+                    <tr>
+                        <td style="text-align: center; font-weight: bold;">${rowNumber}</td>
+                        <td>
+                            <div class="product-row">
+                                <img class="product-thumbnail" src="${productImage}" alt="Product">
+                                <div class="product-name-cell">${productName}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn open-btn" onclick="openAffiliateLink('${link.affiliateLink}')">Mở</button>
+                                <button class="action-btn copy-btn" onclick="copyAffiliateLink('${link.affiliateLink}')">Copy</button>
+                                <button class="action-btn delete-btn" onclick="deleteLink(${link.id})" title="Xóa">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = html;
+
+            // Hiển thị pagination
+            displayPagination(totalPages, links.length);
+        }
+
+        function displayPagination(totalPages, totalLinks) {
+            const paginationContainer = document.getElementById('paginationContainer');
+            const paginationInfo = document.getElementById('paginationInfo');
+
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                paginationInfo.innerHTML = '';
+                return;
+            }
+
+            let html = '<div class="pagination">';
+
+            // Nút Previous
+            html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Trước</button>`;
+
+            // Các nút trang
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += '<span>...</span>';
+                }
+            }
+
+            // Nút Next
+            html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Sau →</button>`;
+
+            html += '</div>';
+
+            paginationContainer.innerHTML = html;
+
+            // Hiển thị thông tin
+            const startItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalLinks);
+            paginationInfo.innerHTML = `Hiển thị ${startItem}-${endItem} trên ${totalLinks} link | Trang ${currentPage}/${totalPages}`;
+        }
+
+        function goToPage(page) {
+            const links = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const totalPages = Math.ceil(links.length / ITEMS_PER_PAGE);
+
+            if (page < 1 || page > totalPages) return;
+
+            currentPage = page;
+            displayHistory();
+
+            // Scroll to table
+            document.querySelector('.history-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function openAffiliateLink(link) {
+            window.open(link, '_blank');
+        }
+
+        function copyAffiliateLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                showMessage('✓ Đã copy link!', 'success');
+            });
+        }
+
+        function deleteLink(id) {
+            if (confirm('Bạn có chắc muốn xóa link này?')) {
+                const links = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                const filtered = links.filter(link => link.id !== id);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+
+                // Reset page nếu cần
+                const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+                if (currentPage > totalPages) {
+                    currentPage = Math.max(1, totalPages);
+                }
+
+                displayHistory();
+                showMessage('✓ Đã xóa link', 'success');
+            }
+        }
+
+        function clearAllLinks() {
+            if (confirm('Bạn có chắc muốn xóa TẤT CẢ link? Hành động này không thể hoàn tác!')) {
+                localStorage.setItem(STORAGE_KEY, '[]');
+                currentPage = 1;
+                displayHistory();
+                showMessage('✓ Đã xóa tất cả link', 'success');
+            }
+        }
+
+        async function resolveShortLink(url) {
+            if (url.includes('s.shopee.vn')) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    return response.url || url;
+                } catch (e) {
+                    return url;
+                }
+            }
+            return url;
+        }
+
+        function extractProductId(url) {
+            const match = url.match(/\/(?:product\/)?(\d+)\.(\d+)/);
+            if (match) {
+                return {
+                    shopId: match[1],
+                    itemId: match[2]
+                };
+            }
+            return null;
+        }
+
+        async function fetchProductInfo(productId) {
+            try {
+                const url = `https://shopee.vn/api/v4/pdp/get_pc?shop_id=${productId.shopId}&item_id=${productId.itemId}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.data) {
+                    const product = data.data.item;
+                    return {
+                        name: product.name,
+                        image: product.image,
+                        sales: product.historical_sold || product.sold,
+                        price: product.price / 100000,
+                        rating: product.rating_star || 5
+                    };
+                }
+            } catch (error) {
+                console.log('Không thể lấy thông tin sản phẩm:', error);
+            }
+            return null;
+        }
+
+        function displayProductCard(productInfo) {
+            const productCard = document.getElementById('productCard');
+            const productImage = document.getElementById('productImage');
+            const productName = document.getElementById('productName');
+            const productRating = document.getElementById('productRating');
+            const productSales = document.getElementById('productSales');
+
+            productImage.src = productInfo.image;
+            productName.textContent = productInfo.name;
+
+            const rating = (productInfo.rating / 2).toFixed(1);
+            productRating.textContent = rating + '/5';
+
+            let salesText = productInfo.sales;
+            if (productInfo.sales > 1000) {
+                salesText = (productInfo.sales / 1000).toFixed(1) + 'k lượt mua';
+            } else {
+                salesText = productInfo.sales + ' lượt mua';
+            }
+            productSales.textContent = salesText;
+
+            productCard.style.display = 'flex';
         }
 
         function openLink() {
@@ -335,9 +1037,26 @@
             }
         }
 
+        function copyAndShare() {
+            const resultLink = document.getElementById('resultLink').value;
+            if (!resultLink) return;
+
+            navigator.clipboard.writeText(resultLink).then(() => {
+                showMessage('✓ Đã copy link! Dán vào Zalo/Messenger để chia sẻ', 'success');
+
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Shopee Product',
+                        text: 'Xem sản phẩm này trên Shopee',
+                        url: resultLink
+                    }).catch(err => console.log('Error sharing:', err));
+                }
+            });
+        }
+
         function showMessage(text, type) {
             const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
+            messageDiv.innerHTML = text;
             messageDiv.className = 'message ' + type;
         }
     </script>

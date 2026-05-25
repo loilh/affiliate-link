@@ -963,23 +963,53 @@
         async function resolveShortLink(url) {
             if (url.includes('s.shopee.vn')) {
                 try {
-                    const response = await fetch(url, { method: 'HEAD' });
-                    return response.url || url;
+                    // Cách 1: Thử dùng cors-anywhere proxy (nếu có)
+                    const corsProxy = 'https://api.allorigins.win/get?url=';
+                    const response = await fetch(corsProxy + encodeURIComponent(url), {
+                        method: 'GET'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Kiểm tra xem proxy có trả về location header không
+                        if (data.headers && data.headers.location) {
+                            return data.headers.location;
+                        }
+                        // Nếu không, cố gắng extract từ HTML response
+                        if (data.contents) {
+                            const match = data.contents.match(/location\.href\s*=\s*['"]([^'"]+)['"]/i);
+                            if (match) return match[1];
+                        }
+                    }
                 } catch (e) {
-                    return url;
+                    console.log('Proxy không khả dụng:', e);
                 }
+                
+                // Fallback: Tiếp tục sử dụng short link
+                // Shopee API có thể xử lý short link trực tiếp
+                console.log('Sử dụng short link trực tiếp');
+                return url;
             }
             return url;
         }
 
         function extractProductId(url) {
-            const match = url.match(/\/(?:product\/)?(\d+)\.(\d+)/);
+            // Format 1: /product/123/456 hoặc /Tên-sản-phẩm-i.123.456
+            let match = url.match(/\/(?:product\/)?(\d+)\.(\d+)/);
             if (match) {
                 return {
                     shopId: match[1],
                     itemId: match[2]
                 };
             }
+            
+            // Format 2: Short link https://s.shopee.vn/2BBu8MHr7d
+            // Không thể extract từ short link, cần resolve trước
+            if (url.includes('s.shopee.vn')) {
+                console.log('Short link chưa được resolve, không thể extract product ID');
+                return null;
+            }
+            
             return null;
         }
 

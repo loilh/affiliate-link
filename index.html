@@ -778,6 +778,13 @@
                 return;
             }
 
+            // Reset kết quả cũ trước khi show link mới
+            document.getElementById('resultBox').classList.remove('show');
+            document.getElementById('resultLink').value = '';
+            document.getElementById('productCard').style.display = 'none';
+            document.getElementById('productImage').src = '';
+            document.getElementById('imageLoadingOverlay').classList.remove('hidden');
+
             // ⚡ BƯỚC 1: Tạo affiliate link & tên ngay lập tức — không cần API
             const separator = productUrl.includes('?') ? '&' : '?';
             const affiliateLink = productUrl + separator + 'aff_code=' + AFFILIATE_ID;

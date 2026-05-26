@@ -684,6 +684,20 @@
             msg.innerHTML = '';
         });
 
+        // Extract tên sản phẩm từ URL slug Shopee (0ms, không cần API)
+        // Hỗ trợ: /Tên-SP-i.SHOPID.ITEMID
+        function extractProductName(url) {
+            try {
+                const pathname = new URL(url).pathname;
+                const match = pathname.match(/^\/(.+?)-i\.\d+\.\d+/);
+                if (!match) return null;
+                const name = match[1].replace(/-/g, ' ').trim().substring(0, 200);
+                return name.length >= 5 ? name : null;
+            } catch (_) {
+                return null;
+            }
+        }
+
         function cleanOldLinks() {
             const links = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
             const now = Date.now();
@@ -728,45 +742,43 @@
                 return;
             }
 
-            createBtn.disabled = true;
-            showMessage('<span class="loading-spinner"></span>Đang xử lý...', 'loading');
+            // ⚡ BƯỚC 1: Tạo affiliate link & tên ngay lập tức — không cần API
+            const separator = productUrl.includes('?') ? '&' : '?';
+            const affiliateLink = productUrl + separator + 'aff_code=' + AFFILIATE_ID;
+            const quickName = extractProductName(productUrl);
 
-            try {
-                const response = await fetch(`${API_URL}?url=${encodeURIComponent(productUrl)}`);
+            resultLink.value = affiliateLink;
+            resultBox.classList.add('show');
+            step2Circle.classList.add('completed');
+            step2Circle.textContent = '2';
 
-                if (!response.ok) throw new Error(`API lỗi ${response.status}`);
-
-                const data = await response.json();
-                // data = { url, productInfo: {name, image}, facebookPostId, cached }
-
-                const productInfo = data.productInfo || null;
-                if (productInfo) {
-                    displayProductCard(productInfo);
-                }
-
-                const baseUrl = data.url || productUrl;
-                const separator = baseUrl.includes('?') ? '&' : '?';
-                const affiliateLink = baseUrl + separator + 'aff_code=' + AFFILIATE_ID;
-
-                resultLink.value = affiliateLink;
-                resultBox.classList.add('show');
-                step2Circle.classList.add('completed');
-                step2Circle.textContent = '2';
-
-                saveLink(affiliateLink, productUrl, productInfo);
-                currentPage = 1;
-                displayHistory();
-
-                if (!document.getElementById('message').innerHTML.includes('cập nhật')) {
-                    showMessage('✓ Link tạo thành công!', 'success');
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                showMessage('❌ Lỗi: ' + error.message + '. Hãy thử lại sau.', 'error');
-            } finally {
-                createBtn.disabled = false;
+            if (quickName) {
+                displayProductCard({ name: quickName, image: '' });
             }
+
+            saveLink(affiliateLink, productUrl, quickName ? { name: quickName, image: '' } : null);
+            currentPage = 1;
+            displayHistory();
+            createBtn.disabled = false;
+
+            // ⚡ BƯỚC 2: Gọi API ngầm chỉ để lấy ảnh (không block UI)
+            showMessage('<span class="loading-spinner"></span>Đang tải ảnh sản phẩm...', 'loading');
+            fetch(`${API_URL}?url=${encodeURIComponent(productUrl)}`)
+                .then(r => r.ok ? r.json() : Promise.reject(`API lỗi ${r.status}`))
+                .then(data => {
+                    const productInfo = data.productInfo || null;
+                    if (productInfo?.image) {
+                        displayProductCard(productInfo);
+                        // Cập nhật lại history với ảnh đầy đủ
+                        saveLink(affiliateLink, productUrl, productInfo);
+                        displayHistory();
+                    }
+                    showMessage('✓ Link tạo thành công!', 'success');
+                })
+                .catch(err => {
+                    console.warn('Không lấy được ảnh:', err);
+                    showMessage('✓ Link tạo thành công! (không lấy được ảnh)', 'success');
+                });
         }
 
         function saveLink(affiliateLink, originalLink, productInfo = null) {

@@ -828,7 +828,10 @@
 
             // ⚡ BƯỚC 1: Tạo affiliate link & tên ngay lập tức — không cần API
             const separator = productUrl.includes('?') ? '&' : '?';
-            const affiliateLink = productUrl + separator + 'aff_code=' + AFFILIATE_ID;
+            const affiliateLink = productUrl + separator +
+                'mmp_pid=an_' + AFFILIATE_ID +
+                '&utm_medium=affiliates' +
+                '&utm_source=an_' + AFFILIATE_ID;
             const quickName = extractProductName(productUrl);
 
             resultLink.value = affiliateLink;
